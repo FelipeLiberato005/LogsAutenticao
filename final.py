@@ -33,7 +33,7 @@ for i in range(100):
     usuario = random.choice(usuarios)
     ip = f"{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(1, 255)}"
     sucesso = random.choice([True, False])
-    horario = (datetime.datetime(2025, 3, 19, 10, 0, 0) + datetime.timedelta(minutes=5 * i)).isoformat()
+    horario = (datetime.datetime(2025, 3, 19, 10, 0, 0) + datetime.timedelta(minutes=5 * i)).strftime("%H:%M:%S")
     
     # Verificação de IP suspeito ou usuário suspeito
     status_suspeito = not validar_ip(ip) or ip_suspeito(ip) or usuario_suspeito(usuario)
@@ -58,7 +58,6 @@ def classificacao():
 def criar_dataframe():
     eventos_classificados = classificacao()
     df = pd.DataFrame(eventos_classificados)
-    df['horario'] = pd.to_datetime(df['horario']).dt.hour
     df['ip_distinto'] = df['ip'].apply(lambda x: len(set(x.split('.'))))
     df['sucesso'] = df['sucesso'].astype(int)
     df['classificacao'] = df['classificacao'].apply(lambda x: 1 if x == "Normal" else 0)
@@ -66,7 +65,7 @@ def criar_dataframe():
 
 # Treinar o modelo
 def treinar_modelo(df):
-    X = df[['horario', 'ip_distinto', 'sucesso']]
+    X = df[['ip_distinto', 'sucesso']]
     y = df['classificacao']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     modelo = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -78,10 +77,9 @@ def treinar_modelo(df):
 # Prever novos logins
 def prever_logins(modelo, logs):
     log_df = pd.DataFrame(logs)
-    log_df['horario'] = pd.to_datetime(log_df['horario']).dt.hour
     log_df['ip_distinto'] = log_df['ip'].apply(lambda x: len(set(x.split('.'))))
     log_df['sucesso'] = log_df['sucesso'].astype(int)
-    predicoes = modelo.predict(log_df[['horario', 'ip_distinto', 'sucesso']])
+    predicoes = modelo.predict(log_df[['ip_distinto', 'sucesso']])
     log_df['classificacao'] = ["Normal" if p == 1 else "Suspeito" for p in predicoes]
     return log_df.to_dict(orient='records')
 
