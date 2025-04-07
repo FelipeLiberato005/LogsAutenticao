@@ -1,0 +1,51 @@
+Instale as dependências com:
+pip install -r requirements.txt
+
+
+requeriments: 
+pandas
+scikit-learn
+tabulate
+
+
+Sistema de Logs Fictícios com Detecção de Atividades Suspeitas
+Este código simula a geração de logs de autenticação e aplica técnicas de machine learning para classificar eventos como "Normais" ou "Suspeitos", com base em padrões de IP e nomes de usuários. Ideal para estudos sobre segurança da informação, regex e classificação supervisionada em Python.
+
+
+
+Funcionalidades
+
+- Geração de 100 registros de log fictícios
+- Detecção de IPs e usuários com padrões suspeitos via regex
+- Classificação automática de eventos como "Normais" ou "Suspeitos"
+- Treinamento de modelo de machine learning (Random Forest)
+- Previsão de novos logins com base no modelo treinado
+- Visualização tabular dos dados no terminal
+
+
+
+Dependências
+As seguintes bibliotecas são utilizadas no projeto:
+
+- pandas – Manipulação de dados tabulares
+- scikit-learn – Algoritmos de machine learning
+- tabulate – Exibição de tabelas formatadas no terminal
+
+
+Como o código funciona:
+
+Geração de logs:
+Cria eventos fictícios com usuário, horário, IP, status de sucesso e análise por regex.
+
+Classificação Regex:
+Verifica se um IP tem padrão repetitivo".
+
+DataFrame para Machine Learning:
+Transforma os logs em um DataFrame com novas colunas para treino (a quantidade de Ip distintos).
+
+Treinamento:
+Utiliza um Random Forest para classificar eventos como normais ou suspeitos.
+
+Previsão e Exibição:
+Aplica o modelo aos logs gerados e exibe os resultados com tabulate.
+
