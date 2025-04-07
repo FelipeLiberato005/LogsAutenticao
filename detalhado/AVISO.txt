@@ -1,0 +1,1 @@
+As linhas de código estão bem mais detalhadas neste projeto, porém ele é uma versão inferior ao final.py
