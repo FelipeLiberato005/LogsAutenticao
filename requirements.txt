@@ -40,7 +40,7 @@ Cria eventos fictícios com usuário, horário, IP, status de sucesso e análise
 Classificação Regex:
 Verifica se um IP tem padrão repetitivo".
 
-DataFrame para Machine Learning:
+Dataframe para machiene learning
 Transforma os logs em um DataFrame com novas colunas para treino (a quantidade de Ip distintos).
 
 Treinamento:
