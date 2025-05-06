@@ -28,21 +28,37 @@ def usuario_suspeito(usuario):
 
 # Gerando 100 logs fictícios com informações aleatórias
 logs_ficticios = []
+tentativas_falhas = {}
 
 for i in range(100):
     usuario = random.choice(usuarios)
     ip = f"{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(1, 255)}"
     sucesso = random.choice([True, False])
+
+    # Atualizar contador de falhas consecutivas
+    if sucesso:
+        tentativas_falhas[usuario] = 0
+    else:
+        tentativas_falhas[usuario] = tentativas_falhas.get(usuario, 0) + 1
+
+    falhas_consecutivas = tentativas_falhas.get(usuario, 0)
+
+    # Verificação de IP suspeito, usuário suspeito ou 3 falhas consecutivas
+    status_suspeito = (
+        not validar_ip(ip)
+        or ip_suspeito(ip)
+        or usuario_suspeito(usuario)
+        or falhas_consecutivas >= 3
+    )
+
     horario = (datetime.datetime(2025, 3, 19, 10, 0, 0) + datetime.timedelta(minutes=5 * i)).strftime("%H:%M:%S")
-    
-    # Verificação de IP suspeito ou usuário suspeito
-    status_suspeito = not validar_ip(ip) or ip_suspeito(ip) or usuario_suspeito(usuario)
-    
+
     logs_ficticios.append({
         "usuario": usuario,
         "horario": horario,
         "ip": ip,
         "sucesso": sucesso,
+        "falhas_consecutivas": falhas_consecutivas,
         "suspeito_regex": status_suspeito
     })
 
@@ -60,12 +76,13 @@ def criar_dataframe():
     df = pd.DataFrame(eventos_classificados)
     df['ip_distinto'] = df['ip'].apply(lambda x: len(set(x.split('.'))))
     df['sucesso'] = df['sucesso'].astype(int)
+    df['falhas_consecutivas'] = df['falhas_consecutivas'].astype(int)
     df['classificacao'] = df['classificacao'].apply(lambda x: 1 if x == "Normal" else 0)
     return df
 
 # Treinar o modelo
 def treinar_modelo(df):
-    X = df[['ip_distinto', 'sucesso']]
+    X = df[['ip_distinto', 'sucesso', 'falhas_consecutivas']]
     y = df['classificacao']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     modelo = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -79,7 +96,8 @@ def prever_logins(modelo, logs):
     log_df = pd.DataFrame(logs)
     log_df['ip_distinto'] = log_df['ip'].apply(lambda x: len(set(x.split('.'))))
     log_df['sucesso'] = log_df['sucesso'].astype(int)
-    predicoes = modelo.predict(log_df[['ip_distinto', 'sucesso']])
+    log_df['falhas_consecutivas'] = log_df['falhas_consecutivas'].astype(int)
+    predicoes = modelo.predict(log_df[['ip_distinto', 'sucesso', 'falhas_consecutivas']])
     log_df['classificacao'] = ["Normal" if p == 1 else "Suspeito" for p in predicoes]
     return log_df.to_dict(orient='records')
 
